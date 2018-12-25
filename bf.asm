@@ -1,10 +1,14 @@
 extern putchar
 extern getchar
+extern puts
+extern scanf
 
 SECTION .data
-bf_script:    db ",.", 0
+bf_script:    db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.---.+++++++.", 0
 fmt: db "%s", 10, 0
-bf_mem: times 512 db 36
+bf_mem: times 512 db 0
+term_delim: db "> ", 0
+
 
 SECTION .text
 global main
@@ -28,6 +32,18 @@ jz getc
 cmp dl, '.'
 jz putc
 
+cmp dl, '>'
+jz move_right
+
+cmp dl, '<'
+jz move_left
+
+cmp dl, '+'
+jz incr_dp
+
+cmp dl, '-'
+jz decr_dp
+
 jmp instr_end
 
 putc:
@@ -36,7 +52,7 @@ push eax
 push ecx
 ; Clear ebx
 xor ebx, ebx
-; Set bl = *eax
+; Set bl = *ecx
 mov bl, byte[ecx]
 ; Push ebx as an argument to putchar
 push ebx
@@ -57,7 +73,11 @@ push eax
 ; Save the brainfuck mem pointer
 push ecx
 ; Call getchar to read input
+.getc_loop:
 call getchar
+; If the result is \n, ignore it
+cmp al, 10
+jz .getc_loop
 ; Restore the mem pointer
 pop ecx
 ; Save the resulting byte to bf mem
@@ -65,6 +85,29 @@ mov [ecx], al
 ; Restore eax
 pop eax
 ; Continue
+jmp instr_end
+
+
+move_right:
+add ecx, 1
+jmp instr_end
+
+move_left:
+sub ecx, 1
+jmp instr_end
+
+
+incr_dp:
+mov dl, byte[ecx]
+inc dl
+mov [ecx], dl
+jmp instr_end
+
+
+decr_dp:
+mov dl, byte[ecx]
+dec dl
+mov [ecx], dl
 jmp instr_end
 
 
