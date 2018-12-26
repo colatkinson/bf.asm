@@ -1,5 +1,7 @@
 [BITS 32]
 
+%define bf_mem_sz 32768
+
 extern putchar
 extern getchar
 extern puts
@@ -13,7 +15,7 @@ SECTION .data
 ;bf_script: db ",>>[-]<<[->>+<<][.]>>."
 bf_script: db ",[.-[-->++<]>+]", 0
 ;fmt: db "%s", 10, 0
-bf_mem: times 32768 db 0
+bf_mem: times bf_mem_sz db 0
 term_delim: db "> ", 0
 bf_stack: times 1024 db 0
 
@@ -214,6 +216,8 @@ main:
         ; Test if the current byte is \0
         ; TODO: Figure out how to prevent repetition
         add eax, 1
+        cmp ecx, bf_mem + bf_mem_sz
+        jz out_of_mem
         mov bl, byte[eax]
         cmp ebx, 0
         jnz putc_loop
@@ -225,4 +229,12 @@ main:
     ; Return 0
     xor eax, eax
     ret
+
+    out_of_mem:
+        ; Reset the stack pointer
+        mov esp, ebp
+        pop ebp
+
+        mov eax, 12
+        ret
 
