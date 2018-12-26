@@ -9,12 +9,13 @@ SECTION .data
 ;bf_script:    db "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.---.+++++++.>,+.", 0
 ;bf_script: db "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[.]", 0
 ;bf_script: db "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.", 0
-;bf_script: db "++++++++++++++++++++[>+.]", 0
+;bf_script: db "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[.+]", 0
+;bf_script: db ",>>[-]<<[->>+<<][.]>>."
 bf_script: db ",[.-[-->++<]>+]", 0
-fmt: db "%s", 10, 0
-bf_mem: times 16384 db 0
+;fmt: db "%s", 10, 0
+bf_mem: times 32768 db 0
 term_delim: db "> ", 0
-bf_stack: times 512 db 0
+bf_stack: times 1024 db 0
 
 
 SECTION .text
@@ -61,17 +62,18 @@ main:
         jmp instr_end
 
     loop_start:
-        mov dl, [ecx]
+        mov dl, byte[ecx]
         cmp dl, 0
         jz loop_start_zero
 
-        mov [edi], eax
-        add edi, 4
+        ; mov [edi], eax
+        ; add edi, 4
         jmp instr_end
 
     loop_start_zero:
         ; Clear edx so we can use it for comparisons
         xor edx, edx
+        inc dh
         .loop:
             ; Move to the next bf instruction
             inc eax
@@ -107,12 +109,13 @@ main:
         jz instr_end
 
         ; Else, we return to the start of the loop
-        mov eax, [edi]
-        dec eax
-        jmp instr_end
+        ; mov eax, [edi]
+        ; dec eax
+        jmp loop_end_nonzero
 
     loop_end_nonzero:
         xor edx, edx
+        inc dh
         .loop:
             dec eax
             mov dl, byte[eax]
