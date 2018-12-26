@@ -19,6 +19,9 @@ bf_mem: times bf_mem_sz db 0
 term_delim: db "> ", 0
 bf_stack: times 1024 db 0
 
+%define bf_script_reg eax
+%define bf_mem_reg ecx
+
 
 SECTION .text
 global main
@@ -30,12 +33,12 @@ main:
     push ebp
     mov ebp, esp
 
-    mov eax, bf_script
+    mov bf_script_reg, bf_script
     mov edi, bf_stack
-    mov ecx, bf_mem
+    mov bf_mem_reg, bf_mem
 
-    putc_loop:
-        mov dl, byte[eax]
+    bf_loop:
+        mov dl, byte[bf_script_reg]
 
         cmp dl, ','
         jz getc
@@ -64,7 +67,7 @@ main:
         jmp instr_end
 
     loop_start:
-        mov dl, byte[ecx]
+        mov dl, byte[bf_mem_reg]
         cmp dl, 0
         jz loop_start_zero
 
@@ -78,9 +81,9 @@ main:
         inc dh
         .loop:
             ; Move to the next bf instruction
-            inc eax
+            inc bf_script_reg
             ; Get the current instruction
-            mov dl, byte[eax]
+            mov dl, byte[bf_script_reg]
             ; Check if there's another nested loop
             cmp dl, '['
             jnz .after_nest_check
@@ -101,7 +104,7 @@ main:
 
     loop_end:
         ; Read the byte from the bf data pointer
-        mov dl, byte[ecx]
+        mov dl, byte[bf_mem_reg]
 
         ; Remove a value from the stack
         sub edi, 4
@@ -119,8 +122,8 @@ main:
         xor edx, edx
         inc dh
         .loop:
-            dec eax
-            mov dl, byte[eax]
+            dec bf_script_reg
+            mov dl, byte[bf_script_reg]
             cmp dl, ']'
             jnz .after_new_nest
             inc dh
@@ -135,15 +138,15 @@ main:
 
     putc:
         ; Save eax and ecx before putchar
-        push eax
+        push bf_script_reg
         push edi
-        push ecx
+        push bf_mem_reg
 
         ; Clear ebx
         xor ebx, ebx
 
-        ; Set bl = *ecx
-        mov bl, byte[ecx]
+        ; Set bl = *bf_mem_reg
+        mov bl, byte[bf_mem_reg]
         ; Push ebx as an argument to putchar
         push ebx
         call putchar
@@ -151,11 +154,11 @@ main:
         add esp, 4
 
         ; Restore the bf instruction pointer
-        pop ecx
+        pop bf_mem_reg
         ; Restore the bf stack pointer
-         pop edi
+        pop edi
         ; Restore the bf memory pointer
-        pop eax
+        pop bf_script_reg
 
         ; Continue the instruction loop
         jmp instr_end
@@ -163,11 +166,11 @@ main:
 
     getc:
         ; Save the brainfuck IP
-        push eax
+        push bf_script_reg
         ; Save the bf stack
         push edi
         ; Save the brainfuck mem pointer
-        push ecx
+        push bf_mem_reg
 
         ; Call getchar to read input
         .getc_loop:
@@ -177,50 +180,50 @@ main:
             jz .getc_loop
 
         ; Restore the mem pointer
-        pop ecx
+        pop bf_mem_reg
 
         ; Save the byte from stdin to bf mem
-        mov [ecx], al
+        mov [bf_mem_reg], al
 
         ; Restore ebx
         pop edi
         ; Restore eax
-        pop eax
+        pop bf_script_reg
 
         ; Continue
         jmp instr_end
 
 
     move_right:
-        add ecx, 1
+        add bf_mem_reg, 1
         jmp instr_end
 
     move_left:
-        sub ecx, 1
+        sub bf_mem_reg, 1
         jmp instr_end
 
 
     incr_dp:
-        mov dl, byte[ecx]
+        mov dl, byte[bf_mem_reg]
         inc dl
-        mov [ecx], dl
+        mov [bf_mem_reg], dl
         jmp instr_end
 
     decr_dp:
-        mov dl, byte[ecx]
+        mov dl, byte[bf_mem_reg]
         dec dl
-        mov [ecx], dl
+        mov [bf_mem_reg], dl
         jmp instr_end
 
     instr_end:
         ; Test if the current byte is \0
         ; TODO: Figure out how to prevent repetition
-        add eax, 1
-        cmp ecx, bf_mem + bf_mem_sz
+        add bf_script_reg, 1
+        cmp bf_mem_reg, bf_mem + bf_mem_sz
         jz out_of_mem
-        mov bl, byte[eax]
+        mov bl, byte[bf_script_reg]
         cmp ebx, 0
-        jnz putc_loop
+        jnz bf_loop
 
     ; Reset the stack pointer
     mov esp, ebp
