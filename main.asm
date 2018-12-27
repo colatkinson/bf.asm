@@ -18,6 +18,10 @@ main:
     call bf_interp
     add esp, 8
 
+    push bf_script
+    call bf_interp
+    add esp, 8
+
     ; Reset the stack pointer
     mov esp, ebp
     pop ebp

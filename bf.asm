@@ -22,8 +22,20 @@ bf_interp:
     push ebp
     mov ebp, esp
 
+    .save_registers:
+        push edi
+        push ecx
+        push ebx
+        push edx
+
     mov bf_script_reg, [ebp + 8]
-    mov bf_mem_reg, bf_mem
+    mov bf_mem_reg, bf_mem + bf_mem_sz
+
+    .clear_mem_loop:
+        dec bf_mem_reg
+        mov byte[bf_mem_reg], 0
+        cmp bf_mem_reg, bf_mem
+        jnz .clear_mem_loop
 
     .bf_loop:
         mov dl, byte[bf_script_reg]
@@ -221,5 +233,12 @@ bf_interp:
         jmp .end
 
     .end:
+        ; Restore registers
+        pop edx
+        pop ebx
+        pop ecx
+        pop edi
+
+        ; Restore stack pointer
         pop ebp
-        ret
+        ret 4
