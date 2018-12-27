@@ -218,7 +218,7 @@ bf_interp:
     .instr_end:
         ; Test if the current byte is \0
         ; TODO: Figure out how to prevent repetition
-        add bf_script_reg, 1
+        inc bf_script_reg
         cmp bf_mem_reg, bf_mem + bf_mem_sz
         jz .out_of_mem
         mov bl, byte[bf_script_reg]
@@ -229,6 +229,7 @@ bf_interp:
         jmp .end
 
     .out_of_mem:
+        ; 12 == ENOMEM
         mov eax, 12
         jmp .end
 
@@ -241,4 +242,4 @@ bf_interp:
 
         ; Restore stack pointer
         pop ebp
-        ret 4
+        ret
