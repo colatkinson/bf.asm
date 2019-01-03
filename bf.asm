@@ -8,11 +8,10 @@ SECTION .data
 ; ecx is the bf data pointer
 %define bf_mem_reg ecx
 
-extern getchar
-
 SECTION .bss
 
 bf_mem: resb bf_mem_sz
+read_buf: resb 3
 
 SECTION .text
 
@@ -153,11 +152,7 @@ bf_interp:
         push bf_mem_reg
 
         ; Call getchar to read input
-        .getc_loop:
-            call getchar
-            ; If the result is \n, ignore it
-            cmp al, 10
-            jz .getc_loop
+        call syscall_getchar
 
         ; Restore the mem pointer
         pop bf_mem_reg
@@ -255,6 +250,54 @@ syscall_putchar:
         pop ecx
         pop ebx
         pop eax
+
+    .end:
+        ; Restore the base pointer
+        pop ebp
+        ret
+
+%define syscall_read 3
+%define STDIN 0
+; NOTE: This subroutine does not follow the C calling convention
+; It takes its one parameter, the memory location to write, in bf_mem_reg
+syscall_getchar:
+    ; Save the base pointer
+    push ebp
+    mov ebp, esp
+
+    .save_regs:
+        push ebx
+        push ecx
+        push edx
+
+    .syscall:
+        mov eax, syscall_read
+        mov ebx, STDIN
+        ; Read into our special buffer
+        mov ecx, read_buf
+        ; Read two bytes, the second of
+        mov edx, 2
+        ; Linux syscall
+        int 80h
+
+        ; TODO Check return code of syscall
+
+        ; Move the value we read into al
+        xor eax, eax
+        mov al, [read_buf]
+
+        ; If we got EOF, read more
+        cmp al, 0
+        jl .syscall
+
+        ; If we got newline, read more
+        cmp al, 10
+        je .syscall
+
+    .restore:
+        pop edx
+        pop ecx
+        pop ebx
 
     .end:
         ; Restore the base pointer
