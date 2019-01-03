@@ -8,10 +8,11 @@ SECTION .data
 ; ecx is the bf data pointer
 %define bf_mem_reg ecx
 
-extern putchar
 extern getchar
 
-bf_mem: times bf_mem_sz db 0
+SECTION .bss
+
+bf_mem: resb bf_mem_sz
 
 SECTION .text
 
@@ -137,28 +138,7 @@ bf_interp:
             jmp .instr_end
 
     .putc:
-        ; Save eax and ecx before putchar
-        push bf_script_reg
-        push edi
-        push bf_mem_reg
-
-        ; Clear ebx
-        xor ebx, ebx
-
-        ; Set bl = *bf_mem_reg
-        mov bl, byte[bf_mem_reg]
-        ; Push ebx as an argument to putchar
-        push ebx
-        call putchar
-        ; Remove the argument from the stack
-        add esp, 4
-
-        ; Restore the bf instruction pointer
-        pop bf_mem_reg
-        ; Restore the bf stack pointer
-        pop edi
-        ; Restore the bf memory pointer
-        pop bf_script_reg
+        call syscall_putchar
 
         ; Continue the instruction loop
         jmp .instr_end
@@ -222,7 +202,7 @@ bf_interp:
         cmp bf_mem_reg, bf_mem + bf_mem_sz
         jz .out_of_mem
         mov bl, byte[bf_script_reg]
-        cmp ebx, 0
+        cmp bl, 0
         jnz .bf_loop
 
         xor eax, eax
@@ -241,5 +221,42 @@ bf_interp:
         pop edi
 
         ; Restore stack pointer
+        pop ebp
+        ret
+
+%define syscall_write 4
+%define STDOUT 1
+
+; NOTE: This subroutine does not follow the C calling convention
+; It takes its one parameter, the memory location to write, in bf_mem_reg
+syscall_putchar:
+    ; Save the base pointer
+    push ebp
+    mov ebp, esp
+
+    .save_regs:
+        push eax
+        push ebx
+        push ecx
+        push edx
+
+    .syscall:
+        mov eax, syscall_write
+        mov ebx, STDOUT
+        ; Note: As of right now, this is a noop (bf_mem_reg == ecx)
+        mov ecx, bf_mem_reg
+        ; Write one byte
+        mov edx, 1
+        ; Linux syscall
+        int 80h
+
+    .restore:
+        pop edx
+        pop ecx
+        pop ebx
+        pop eax
+
+    .end:
+        ; Restore the base pointer
         pop ebp
         ret
