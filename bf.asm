@@ -23,7 +23,6 @@ bf_interp:
     mov ebp, esp
 
     .save_registers:
-        push edi
         push ecx
         push ebx
         push edx
@@ -71,13 +70,11 @@ bf_interp:
         cmp dl, 0
         jz .loop_start_zero
 
-        ; mov [edi], eax
-        ; add edi, 4
         jmp .instr_end
 
     .loop_start_zero:
         ; Clear edx so we can use it for comparisons
-        xor edx, edx
+        xor dx, dx
         inc dh
         .lsz_loop:
             ; Move to the next bf instruction
@@ -106,20 +103,15 @@ bf_interp:
         ; Read the byte from the bf data pointer
         mov dl, byte[bf_mem_reg]
 
-        ; Remove a value from the stack
-        sub edi, 4
-
         ; If the current byte is 0, we don't go back to the loop start
         cmp dl, 0
         jz .instr_end
 
         ; Else, we return to the start of the loop
-        ; mov eax, [edi]
-        ; dec eax
         jmp .loop_end_nonzero
 
     .loop_end_nonzero:
-        xor edx, edx
+        xor dx, dx
         inc dh
         .loop:
             dec bf_script_reg
@@ -146,8 +138,6 @@ bf_interp:
     .getc:
         ; Save the brainfuck IP
         push bf_script_reg
-        ; Save the bf stack
-        push edi
         ; Save the brainfuck mem pointer
         push bf_mem_reg
 
@@ -160,8 +150,6 @@ bf_interp:
         ; Save the byte from stdin to bf mem
         mov [bf_mem_reg], al
 
-        ; Restore ebx
-        pop edi
         ; Restore eax
         pop bf_script_reg
 
@@ -213,7 +201,6 @@ bf_interp:
         pop edx
         pop ebx
         pop ecx
-        pop edi
 
         ; Restore stack pointer
         pop ebp
