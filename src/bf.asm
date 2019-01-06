@@ -4,9 +4,11 @@ SECTION .data
 %define bf_mem_sz 32768
 
 ; eax is the bf instruction pointer
-%define bf_script_reg eax
+%define bf_script_reg ebx
 ; ecx is the bf data pointer
 %define bf_mem_reg ecx
+; edx is the general computation register
+%define comp_reg edx
 
 SECTION .bss
 
@@ -23,9 +25,9 @@ bf_interp:
     mov ebp, esp
 
     .save_registers:
-        push ecx
-        push ebx
-        push edx
+        push bf_script_reg
+        push bf_mem_reg
+        push comp_reg
 
     mov bf_script_reg, [ebp + 8]
     mov bf_mem_reg, bf_mem + bf_mem_sz
@@ -184,8 +186,8 @@ bf_interp:
         inc bf_script_reg
         cmp bf_mem_reg, bf_mem + bf_mem_sz
         jz .out_of_mem
-        mov bl, byte[bf_script_reg]
-        cmp bl, 0
+        mov dl, byte[bf_script_reg]
+        cmp dl, 0
         jnz .bf_loop
 
         xor eax, eax
@@ -198,9 +200,9 @@ bf_interp:
 
     .end:
         ; Restore registers
-        pop edx
-        pop ebx
-        pop ecx
+        pop comp_reg
+        pop bf_mem_reg
+        pop bf_script_reg
 
         ; Restore stack pointer
         pop ebp
