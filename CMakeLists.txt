@@ -14,10 +14,10 @@ endif()
 
 set(CMAKE_ASM_NASM_LINK_EXECUTABLE "gcc -m32 <CMAKE_ASM_NASM_LINK_FLAGS> <LINK_FLAGS> <OBJECTS>  -o <TARGET> <LINK_LIBRARIES>")
 
-add_executable(bf main.asm)
-add_library(bf-lib STATIC bf.asm)
+add_executable(bf bin/main.asm)
+add_library(bf-lib STATIC src/bf.asm)
 target_link_libraries(bf bf-lib)
 
-add_executable(c-test test.c)
+add_executable(c-test tests/test.c)
 target_link_libraries(c-test bf-lib)
 set_target_properties(c-test PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
