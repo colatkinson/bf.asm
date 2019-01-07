@@ -1,14 +1,15 @@
-[BITS 32]
+[BITS 64]
+DEFAULT REL
 
 SECTION .data
 %define bf_mem_sz 32768
 
 ; eax is the bf instruction pointer
-%define bf_script_reg ebx
+%define bf_script_reg rbx
 ; ecx is the bf data pointer
-%define bf_mem_reg ecx
+%define bf_mem_reg rcx
 ; edx is the general computation register
-%define comp_reg edx
+%define comp_reg rdx
 
 SECTION .bss
 
@@ -21,21 +22,22 @@ global bf_interp
 
 ; int bf_interp(const char *bf_str)
 bf_interp:
-    push ebp
-    mov ebp, esp
+    push rbp
+    mov rbp, rsp
 
     .save_registers:
         push bf_script_reg
         push bf_mem_reg
         push comp_reg
 
-    mov bf_script_reg, [ebp + 8]
+    mov bf_script_reg, rdi
     mov bf_mem_reg, bf_mem + bf_mem_sz
 
     .clear_mem_loop:
         dec bf_mem_reg
         mov byte[bf_mem_reg], 0
-        cmp bf_mem_reg, bf_mem
+        mov comp_reg, bf_mem
+        cmp bf_mem_reg, comp_reg
         jnz .clear_mem_loop
 
     .bf_loop:
@@ -184,7 +186,9 @@ bf_interp:
         ; Test if the current byte is \0
         ; TODO: Figure out how to prevent repetition
         inc bf_script_reg
-        cmp bf_mem_reg, bf_mem + bf_mem_sz
+        mov comp_reg, bf_mem
+        add comp_reg, bf_mem_sz
+        cmp bf_mem_reg, comp_reg
         jz .out_of_mem
         mov dl, byte[bf_script_reg]
         cmp dl, 0
@@ -205,74 +209,78 @@ bf_interp:
         pop bf_script_reg
 
         ; Restore stack pointer
-        pop ebp
+        pop rbp
         ret
 
-%define syscall_write 4
+%define syscall_write 1
 %define STDOUT 1
 
 ; NOTE: This subroutine does not follow the C calling convention
 ; It takes its one parameter, the memory location to write, in bf_mem_reg
 syscall_putchar:
     ; Save the base pointer
-    push ebp
-    mov ebp, esp
+    push rbp
+    mov rbp, rsp
 
     .save_regs:
-        push eax
-        push ebx
-        push ecx
-        push edx
+        push rax
+        push rdi
+        push rsi
+        push rdx
+        push bf_mem_reg
 
     .syscall:
-        mov eax, syscall_write
-        mov ebx, STDOUT
+        mov rax, syscall_write
+        mov rdi, STDOUT
         ; Note: As of right now, this is a noop (bf_mem_reg == ecx)
-        mov ecx, bf_mem_reg
+        mov rsi, bf_mem_reg
         ; Write one byte
-        mov edx, 1
+        mov rdx, 1
         ; Linux syscall
-        int 80h
+        ; int 80h
+        syscall
 
-    .restore:
-        pop edx
-        pop ecx
-        pop ebx
-        pop eax
+.restore:
+  pop bf_mem_reg
+        pop rdx
+        pop rsi
+        pop rdi
+        pop rax
 
     .end:
         ; Restore the base pointer
-        pop ebp
+        pop rbp
         ret
 
-%define syscall_read 3
+%define syscall_read 0
 %define STDIN 0
 ; NOTE: This subroutine does not follow the C calling convention
 ; It takes its one parameter, the memory location to write, in bf_mem_reg
 syscall_getchar:
     ; Save the base pointer
-    push ebp
-    mov ebp, esp
+    push rbp
+    mov rbp, rsp
 
     .save_regs:
-        push ebx
-        push ecx
-        push edx
+        push rdi
+        push rsi
+        push rdx
 
     .syscall:
-        mov eax, syscall_read
-        mov ebx, STDIN
+        mov rax, syscall_read
+        mov rdi, STDIN
         ; Read into our special buffer
-        mov ecx, read_buf
+        mov rsi, read_buf
         ; Read two bytes, the second of
-        mov edx, 2
+        mov rdx, 2
         ; Linux syscall
-        int 80h
+        ;int 80h
+        syscall
 
         ; TODO Check return code of syscall
 
         ; Move the value we read into al
-        xor eax, eax
+        xor rax, rax
         mov al, [read_buf]
 
         ; If we got EOF, read more
@@ -284,11 +292,11 @@ syscall_getchar:
         je .syscall
 
     .restore:
-        pop edx
-        pop ecx
-        pop ebx
+        pop rdx
+        pop rsi
+        pop rdi
 
     .end:
         ; Restore the base pointer
-        pop ebp
+        pop rbp
         ret
