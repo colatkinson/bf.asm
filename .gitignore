@@ -1,6 +1,7 @@
 cmake-build-debug/
 .idea/
 build/
+build64/
 *.lst
 
 # Prerequisites

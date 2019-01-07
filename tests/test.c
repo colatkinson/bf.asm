@@ -28,5 +28,10 @@ int main(int argc, char **argv)
 
     printf("\nYeehaw\n");
 
+    bf_interp("+[>+[>+[+]<+]<+]");
+
+    //bf_interp("+[>+[+]<+]");
+
     return bf_interp(",[.-[->+<]>+]");
+    // return 0;
 }
