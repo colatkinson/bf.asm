@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
-project(bf C)
+project(bf C CXX)
 
 set(BITS 32 CACHE STRING "The architecture to target")
 set_property(CACHE BITS PROPERTY STRINGS 32)
@@ -23,3 +23,7 @@ add_library(bf-lib STATIC src/bf.asm)
 add_executable(c-test tests/test.c)
 target_link_libraries(c-test bf-lib)
 set_target_properties(c-test PROPERTIES COMPILE_FLAGS "-m${BITS}" LINK_FLAGS "-m${BITS}")
+
+add_executable(zoop tests/stdout_capture.cpp)
+target_link_libraries(zoop bf-lib)
+set_target_properties(zoop PROPERTIES COMPILE_FLAGS "-m${BITS}" LINK_FLAGS "-m${BITS}")
