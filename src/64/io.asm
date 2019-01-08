@@ -3,6 +3,7 @@
 
 ; NOTE: This subroutine does not follow the C calling convention
 ; It takes its one parameter, the memory location to write, in bf_mem_reg
+; TODO(colin): Clean all this up
 syscall_putchar:
     ; Save the base pointer
     push rbp
@@ -23,11 +24,10 @@ syscall_putchar:
         ; Write one byte
         mov rdx, 1
         ; Linux syscall
-        ; int 80h
         syscall
 
-.restore:
-  pop bf_mem_reg
+    .restore:
+        pop bf_mem_reg
         pop rdx
         pop rsi
         pop rdi
@@ -60,7 +60,6 @@ syscall_getchar:
         ; Read two bytes, the second of
         mov rdx, 2
         ; Linux syscall
-        ;int 80h
         syscall
 
         ; TODO Check return code of syscall
