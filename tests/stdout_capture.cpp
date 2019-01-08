@@ -90,5 +90,5 @@ int main(int argc, char **argv)
 
   printf("%s", &out[0]);
 
-    return 0;
+  return 0;
 }
