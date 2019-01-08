@@ -3,9 +3,16 @@ cmake_minimum_required(VERSION 3.13)
 project(bf C CXX)
 
 set(BITS 32 CACHE STRING "The architecture to target")
-set_property(CACHE BITS PROPERTY STRINGS 32)
+set_property(CACHE BITS PROPERTY STRINGS 32 64)
 
-set(CMAKE_ASM_NASM_OBJECT_FORMAT elf)
+if(BITS EQUAL 32)
+  set(CMAKE_ASM_NASM_OBJECT_FORMAT elf)
+elseif(BITS EQUAL 64)
+  set(CMAKE_ASM_NASM_OBJECT_FORMAT elf64)
+else()
+  message(FATAL_ERROR "Invalid bit size")
+endif()
+
 set(CMAKE_ASM_NASM_FLAGS "-l ${CMAKE_BINARY_DIR}/bf.lst -i ${PROJECT_SOURCE_DIR}/src/${BITS}")
 
 enable_language(ASM_NASM)

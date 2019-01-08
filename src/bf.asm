@@ -1,4 +1,4 @@
-[BITS 32]
+%include "pre.asm"
 
 %include "regs.asm"
 %define bf_mem_sz 32768
@@ -26,10 +26,11 @@ bf_interp:
 
     %include "set_script_mem.asm"
 
+    mov comp_reg, bf_mem
     .clear_mem_loop:
         dec bf_mem_reg
         mov byte[bf_mem_reg], 0
-        cmp bf_mem_reg, bf_mem
+        cmp bf_mem_reg, comp_reg
         jnz .clear_mem_loop
 
     .bf_loop:
@@ -178,7 +179,10 @@ bf_interp:
         ; Test if the current byte is \0
         ; TODO: Figure out how to prevent repetition
         inc bf_script_reg
-        cmp bf_mem_reg, bf_mem + bf_mem_sz
+        mov comp_reg, bf_mem
+        add comp_reg, bf_mem_sz
+
+        cmp bf_mem_reg, comp_reg
         jz .out_of_mem
         mov dl, byte[bf_script_reg]
         cmp dl, 0
