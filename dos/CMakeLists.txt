@@ -1,0 +1,5 @@
+#set(CMAKE_LINKER "/usr/bin/ld")
+#set(CMAKE_ASM_NASM_LINK_EXECUTABLE "gcc -m${BITS} <CMAKE_ASM_NASM_LINK_FLAGS> <LINK_FLAGS> <OBJECTS>  -o <TARGET> <LINK_LIBRARIES>")
+set(CMAKE_ASM_NASM_LINK_EXECUTABLE "ld -m elf_i386 --oformat=binary -o <TARGET> -T ${PROJECT_SOURCE_DIR}/dos.ld <OBJECTS>")
+add_executable(dos_test test.asm)
+set_target_properties(dos_test PROPERTIES OUTPUT_NAME "dos_test" SUFFIX ".com" LINK_DEPENDS "${PROJECT_SOURCE_DIR}/dos.ld")

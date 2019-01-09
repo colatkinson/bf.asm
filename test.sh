@@ -13,3 +13,9 @@ cd build32
 cmake .. -DBITS=32
 cmake --build .
 ./c-test ../bitwidth.bf
+cd ..
+
+mkdir -p build16
+cd build16
+cmake .. -DBITS=16
+cmake --build .
