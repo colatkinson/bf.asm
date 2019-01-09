@@ -1,6 +1,7 @@
 cmake-build-debug/
 .idea/
 build/
+build32/
 build64/
 *.lst
 
