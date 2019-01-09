@@ -1,5 +1,5 @@
-%define bf_script_reg rbx
-%define bf_mem_reg rcx
+%define bf_script_reg rsi
+%define bf_mem_reg rdi
 %define comp_reg rdx
 %define comp_hi dh
 %define comp_lo dl
