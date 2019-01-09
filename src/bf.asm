@@ -34,94 +34,94 @@ bf_interp:
         jnz .clear_mem_loop
 
     .bf_loop:
-        mov dl, byte[bf_script_reg]
+        mov comp_lo, byte[bf_script_reg]
 
-        cmp dl, ','
+        cmp comp_lo, ','
         jz .getc
 
-        cmp dl, '.'
+        cmp comp_lo, '.'
         jz .putc
 
-        cmp dl, '>'
+        cmp comp_lo, '>'
         jz .move_right
 
-        cmp dl, '<'
+        cmp comp_lo, '<'
         jz .move_left
 
-        cmp dl, '+'
+        cmp comp_lo, '+'
         jz .incr_dp
 
-        cmp dl, '-'
+        cmp comp_lo, '-'
         jz .decr_dp
 
-        cmp dl, '['
+        cmp comp_lo, '['
         jz .loop_start
 
-        cmp dl, ']'
+        cmp comp_lo, ']'
         jz .loop_end
 
         jmp .instr_end
 
     .loop_start:
-        mov dl, byte[bf_mem_reg]
-        cmp dl, 0
+        mov comp_lo, byte[bf_mem_reg]
+        cmp comp_lo, 0
         jz .loop_start_zero
 
         jmp .instr_end
 
     .loop_start_zero:
         ; Clear edx so we can use it for comparisons
-        xor dx, dx
-        inc dh
+        xor comp_reg, comp_reg
+        inc comp_hi
         .lsz_loop:
             ; Move to the next bf instruction
             inc bf_script_reg
             ; Get the current instruction
-            mov dl, byte[bf_script_reg]
+            mov comp_lo, byte[bf_script_reg]
             ; Check if there's another nested loop
-            cmp dl, '['
+            cmp comp_lo, '['
             jnz .after_nest_check
             ; We use dh as a counter for the levels of nesting
-            inc dh
+            inc comp_hi
             .after_nest_check:
                 ; Now we check if the current instruction is the end of a loop
-                cmp dl, ']'
+                cmp comp_lo, ']'
                 jnz .after_loop_close
                 ; If it is, we decrement our counter
-                dec dh
+                dec comp_hi
             .after_loop_close:
                 ; Now, if we haven't reached the exit point of the loop,
                 ; we continue the loop
-                cmp dh, 0
+                cmp comp_hi, 0
                 jnz .lsz_loop
         jmp .instr_end
 
     .loop_end:
         ; Read the byte from the bf data pointer
-        mov dl, byte[bf_mem_reg]
+        mov comp_lo, byte[bf_mem_reg]
 
         ; If the current byte is 0, we don't go back to the loop start
-        cmp dl, 0
+        cmp comp_lo, 0
         jz .instr_end
 
         ; Else, we return to the start of the loop
         jmp .loop_end_nonzero
 
     .loop_end_nonzero:
-        xor dx, dx
-        inc dh
+        xor comp_reg, comp_reg
+        inc comp_hi
         .loop:
             dec bf_script_reg
-            mov dl, byte[bf_script_reg]
-            cmp dl, ']'
+            mov comp_lo, byte[bf_script_reg]
+            cmp comp_lo, ']'
             jnz .after_new_nest
-            inc dh
+            inc comp_hi
         .after_new_nest:
-            cmp dl, '['
+            cmp comp_lo, '['
             jnz .after_open
-            dec dh
+            dec comp_hi
         .after_open:
-            cmp dh, 0
+            cmp comp_hi, 0
             jnz .loop
             jmp .instr_end
 
@@ -164,15 +164,15 @@ bf_interp:
 
 
     .incr_dp:
-        mov dl, byte[bf_mem_reg]
-        inc dl
-        mov [bf_mem_reg], dl
+        mov comp_lo, byte[bf_mem_reg]
+        inc comp_lo
+        mov [bf_mem_reg], comp_lo
         jmp .instr_end
 
     .decr_dp:
-        mov dl, byte[bf_mem_reg]
-        dec dl
-        mov [bf_mem_reg], dl
+        mov comp_lo, byte[bf_mem_reg]
+        dec comp_lo
+        mov [bf_mem_reg], comp_lo
         jmp .instr_end
 
     .instr_end:
@@ -184,8 +184,8 @@ bf_interp:
 
         cmp bf_mem_reg, comp_reg
         jz .out_of_mem
-        mov dl, byte[bf_script_reg]
-        cmp dl, 0
+        mov comp_lo, byte[bf_script_reg]
+        cmp comp_lo, 0
         jnz .bf_loop
 
         xor ret_reg, ret_reg
