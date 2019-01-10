@@ -7,7 +7,6 @@ SECTIONS
     __start = .;
     *(.text)
 
-   . = ALIGN(512);
    __end = .;
   }
 }
