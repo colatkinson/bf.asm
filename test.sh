@@ -29,3 +29,5 @@ mkdir -p build16
 cd build16
 cmake .. -DBITS=16
 cmake --build .
+echo -e "${cyan}Running 16-bit${nc}"
+dosemu -dumb ./dos/dos_test.com
