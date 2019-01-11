@@ -1,12 +1,6 @@
 %include "pre.asm"
 
 %include "regs.asm"
-%define bf_mem_sz 0x100
-
-SECTION .bss
-bf_mem: resb bf_mem_sz
-;%define bf_mem 0x6000
-read_buf: resb 3
 
 SECTION .text
 
