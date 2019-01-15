@@ -1,12 +1,6 @@
 %include "pre.asm"
 
 %include "regs.asm"
-%define bf_mem_sz 32768
-
-SECTION .bss
-
-bf_mem: resb bf_mem_sz
-read_buf: resb 3
 
 SECTION .text
 
@@ -205,3 +199,5 @@ bf_interp:
         ; Restore stack pointer
         pop base_ptr_reg
         ret
+
+%include "post.asm"

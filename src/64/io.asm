@@ -18,9 +18,10 @@ syscall_putchar:
 
     .syscall:
         mov rax, syscall_write
-        mov rdi, STDOUT
-        ; Note: As of right now, this is a noop (bf_mem_reg == ecx)
+        ; Note that while rdi is the second argument to write(), order of
+        ; operations is important because bf_mem_reg == rdi
         mov rsi, bf_mem_reg
+        mov rdi, STDOUT
         ; Write one byte
         mov rdx, 1
         ; Linux syscall
