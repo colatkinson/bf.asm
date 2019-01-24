@@ -19,7 +19,7 @@ cd build64
 cmake .. -DBITS=64
 cmake --build .
 echo -e "${cyan}Running 64-bit${nc}"
-val=$(./c-test ../bitwidth.bf)
+val=$(./c-test ../samples/bitwidth.bf)
 err_check "$val"
 cd ..
 echo
@@ -30,7 +30,7 @@ cd build32
 cmake .. -DBITS=32
 cmake --build .
 echo -e "${cyan}Running 32-bit${nc}"
-val=$(./c-test ../bitwidth.bf)
+val=$(./c-test ../samples/bitwidth.bf)
 err_check "$val"
 cd ..
 echo
@@ -43,3 +43,8 @@ cmake --build .
 echo -e "${cyan}Running 16-bit${nc}"
 val=$(dosemu -dumb ./dos/dos_test.com 2>/dev/null)
 err_check "$val"
+cd ..
+echo
+
+echo -e "${cyan}Running Python tests${nc}"
+python3 bin_tests/main.py

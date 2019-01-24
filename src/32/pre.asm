@@ -4,4 +4,4 @@
 
 SECTION .bss
 bf_mem: resb bf_mem_sz
-read_buf: resb 3
+read_buf: resb 1

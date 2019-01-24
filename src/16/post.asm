@@ -1,1 +1,0 @@
-bf_mem: nop

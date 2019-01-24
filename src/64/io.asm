@@ -59,23 +59,18 @@ syscall_getchar:
         ; Read into our special buffer
         mov rsi, read_buf
         ; Read two bytes, the second of
-        mov rdx, 2
+        mov rdx, 1
         ; Linux syscall
         syscall
 
-        ; TODO Check return code of syscall
+        ; If we get zero bytes, we've gotten EOF
+        ; We handle this case specially
+        cmp rax, 0
+        je .eof
 
         ; Move the value we read into al
         xor rax, rax
         mov al, [read_buf]
-
-        ; If we got EOF, read more
-        cmp al, 0
-        jl .syscall
-
-        ; If we got newline, read more
-        cmp al, 10
-        je .syscall
 
     .restore:
         pop rdx
@@ -86,3 +81,8 @@ syscall_getchar:
         ; Restore the base pointer
         pop rbp
         ret
+
+    ; If we got EOF, we return -1 as a special value
+    .eof:
+        mov al, -1
+        jmp .restore

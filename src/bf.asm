@@ -138,15 +138,20 @@ bf_interp:
         ; Restore the mem pointer
         pop bf_mem_reg
 
+        ; If we got EOF, al == -1
+        ; We then make no changes to memory
+        cmp al, -1
+        je .getc_end
+
         ; Save the byte from stdin to bf mem
         mov [bf_mem_reg], al
 
-        ; Restore eax
-        pop bf_script_reg
+        .getc_end:
+            ; Restore eax
+            pop bf_script_reg
 
-        ; Continue
-        jmp .instr_end
-
+            ; Continue
+            jmp .instr_end
 
     .move_right:
         inc bf_mem_reg
