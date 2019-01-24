@@ -66,6 +66,7 @@ class Test32(BaseTests.BrainFuckTestBase):
 
 class Test64(BaseTests.BrainFuckTestBase):
     """x86_64 tests"""
+
     exe = "build64/c-test"
 
     def run_bf_proc(self, exe, file, input=None):
@@ -84,6 +85,7 @@ def _dos_prep_rel_path(path: str) -> str:
 
 class TestDOS(BaseTests.BrainFuckTestBase):
     """Emulated DOS tests"""
+
     exe = "build16/dos/dos_test.com"
 
     def run_bf_proc(self, exe, file, input=None):
@@ -96,14 +98,19 @@ class TestDOS(BaseTests.BrainFuckTestBase):
 
         quoted_input = ""
         if input is not None:
-            input_suffix = "\\\\r\\\\^Z\\\\r\""
+            input_suffix = '\\\\r\\\\^Z\\\\r"'
             quoted_input = f"-input \"{input.decode('ascii')}{input_suffix}"
 
-        cmdln = ("dosemu", "-dumb",
-                 quoted_input,
-                 self.exe,
-                 "\"" + _dos_prep_rel_path(file),
-                 ">", f"E:{_dos_prep_path(out_file_path)}", "\"")
+        cmdln = (
+            "dosemu",
+            "-dumb",
+            quoted_input,
+            self.exe,
+            '"' + _dos_prep_rel_path(file),
+            ">",
+            f"E:{_dos_prep_path(out_file_path)}",
+            '"',
+        )
 
         # We run in shell mode because there seems to be some funky escaping
         # going on with dosemu's arguments
