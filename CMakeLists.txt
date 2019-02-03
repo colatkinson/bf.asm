@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.11)
 
 project(bf C CXX)
 
@@ -15,7 +15,7 @@ else()
   message(FATAL_ERROR "Invalid bit size")
 endif()
 
-set(CMAKE_ASM_NASM_FLAGS "-l ${CMAKE_BINARY_DIR}/bf.lst -i ${PROJECT_SOURCE_DIR}/src/${BITS}")
+set(CMAKE_ASM_NASM_FLAGS "-l ${CMAKE_BINARY_DIR}/bf.lst -I ${PROJECT_SOURCE_DIR}/src/${BITS}/")
 
 enable_language(ASM_NASM)
 
