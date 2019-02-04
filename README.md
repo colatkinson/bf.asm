@@ -2,6 +2,8 @@
 
 A simple brainfuck interpreter, written entirely in x86 assembly. Works on Linux x86 and x86\_64, and (in theory) DOS-16.
 
+[![CircleCI Status](https://img.shields.io/circleci/project/github/colatkinson/bf.asm/master.svg?style=flat-square)](https://circleci.com/gh/colatkinson/bf.asm) [![License](https://img.shields.io/github/license/colatkinson/bf.asm.svg?style=flat-square)](https://github.com/colatkinson/bf.asm/blob/master/LICENSE)
+
 ## Why
 
 idk lmao
@@ -12,7 +14,7 @@ idk lmao
 
  * Python 3
  * nasm
- * CMake >= 3.11
+ * CMake >= 3.12
  * A functioning C++ compiler (use g++-multilib on Debian-based systems if you want to run the tests)
  * dosemu (for running tests)
 
@@ -44,7 +46,6 @@ This is very much a work in progress, especially since my laptop is currently br
  * Cleaning up the code
  * Giving the binaries more sensible names
  * More elegant error handling on DOS
- * Automatic running of tests on Travis/Circle CI
  * An overview of the architecture of the project
  * Tests for the C library
  * More bin tests

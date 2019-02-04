@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 set -e
 
 cyan="\033[0;36m"
@@ -46,4 +46,4 @@ cd ..
 echo
 
 echo -e "${cyan}Running Python tests${nc}"
-pytest bin_tests/main.py
+pytest -n auto bin_tests/main.py
